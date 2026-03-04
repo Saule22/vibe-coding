@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Вайбкодинг — курс без программирования</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131c;
+    --card: #1a1a27;
+    --border: rgba(255,255,255,0.07);
+    --accent: #7c3aed;
+    --accent2: #06d6a0;
+    --accent3: #f72585;
+    --text: #f0f0ff;
+    --muted: rgba(240,240,255,0.5);
+    --glow: rgba(124,58,237,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* MESH BG */
+  .mesh {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .mesh-1 { background: rgba(124,58,237,0.15); top: -200px; right: -200px; }
+  .mesh-2 { background: rgba(6,214,160,0.08); bottom: 200px; left: -200px; }
+  .mesh-3 { background: rgba(247,37,133,0.08); top: 60%; right: -100px; }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 48px 0 40px;
+    text-align: center;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #a78bfa;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #a78bfa;
+    animation: pulse 1.5s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero-emoji {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 16px;
+    animation: floatEmoji 3s ease-in-out infinite;
+  }
+
+  @keyframes floatEmoji {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-8px) rotate(3deg); }
+  }
+
+  h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 8px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  h1 span {
+    background: linear-gradient(135deg, #a78bfa, #06d6a0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-bottom: 20px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(240,240,255,0.75);
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .stat-sep {
+    width: 1px;
+    background: var(--border);
+  }
+
+  /* ─── SECTION ─── */
+  section {
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 20px;
+  }
+
+  /* ─── ПРОГРАММА ─── */
+  .modules { display: flex; flex-direction: column; gap: 10px; }
+
+  .module-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+
+  .module-card:hover {
+    border-color: rgba(124,58,237,0.4);
+    transform: translateX(4px);
+  }
+
+  .module-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(124,58,237,0.12);
+    border-radius: 8px;
+    padding: 6px 10px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .module-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .module-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ─── АВТОР ─── */
+  .author-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .author-avatar {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    position: relative;
+    overflow: hidden;
+    padding: 2px;
+  }
+  .author-avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .author-avatar::after {
+    content: '✓';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 24px; height: 24px;
+    background: var(--accent2);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-weight: 700;
+  }
+
+  .author-name {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .author-role {
+    font-size: 12px;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .author-bio {
+    font-size: 13px;
+    color: rgba(240,240,255,0.7);
+    line-height: 1.65;
+  }
+
+  .author-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 100px;
+    background: rgba(124,58,237,0.12);
+    border: 1px solid rgba(124,58,237,0.25);
+    color: #a78bfa;
+  }
+
+  /* ─── БОНУСЫ ─── */
+  .bonuses { display: flex; flex-direction: column; gap: 10px; }
+
+  .bonus-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .bonus-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .bonus-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .bonus-desc {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .bonus-val {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-left: auto;
+    flex-shrink: 0;
+    background: rgba(6,214,160,0.1);
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+
+  /* ─── ДЕДЛАЙН ─── */
+  .deadline-block {
+    background: linear-gradient(135deg, rgba(247,37,133,0.1), rgba(124,58,237,0.1));
+    border: 1px solid rgba(247,37,133,0.25);
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .deadline-text {
+    font-size: 13px;
+    color: rgba(240,240,255,0.7);
+    margin-bottom: 16px;
+  }
+
+  .timer {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .timer-unit {
+    text-align: center;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 64px;
+  }
+
+  .timer-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent3);
+    line-height: 1;
+  }
+
+  .timer-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .spots-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent3);
+  }
+
+  .spots-left .fire { animation: shake 0.5s ease infinite alternate; }
+  @keyframes shake {
+    from { transform: rotate(-5deg); }
+    to { transform: rotate(5deg); }
+  }
+
+  /* ─── ТАРИФЫ ─── */
+  .pricing { display: flex; flex-direction: column; gap: 16px; }
+
+  .plan-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+
+  .plan-card:hover { transform: translateY(-2px); }
+
+  .plan-card.popular {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,214,160,0.04));
+  }
+
+  .plan-card.popular::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .plan-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+
+  .plan-name {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+
+  .plan-price {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .plan-period {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .plan-features li {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(240,240,255,0.8);
+  }
+
+  .plan-features li .check {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(6,214,160,0.15);
+    border: 1px solid rgba(6,214,160,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  .plan-features li.disabled {
+    opacity: 0.35;
+  }
+
+  .plan-features li.disabled .check {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  /* ─── КНОПКИ ─── */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border-radius: 14px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #9333ea);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(124,58,237,0.35);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 12px 32px rgba(124,58,237,0.5);
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+
+  .btn-outline:hover {
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .btn-hero {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 15px;
+    padding: 17px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(124,58,237,0.4);
+    margin-bottom: 12px;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .btn-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 48px rgba(124,58,237,0.55);
+  }
+
+  .btn-secondary-hero {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    font-size: 14px;
+    border-radius: 16px;
+    animation: fadeUp 0.6s 0.6s ease both;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 28px 24px 40px;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-top: 1px solid var(--border);
+  }
+
+  .modal-overlay.open .modal {
+    transform: translateY(0);
+  }
+
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 100px;
+    margin: 0 auto 20px;
+  }
+
+  .modal h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .modal-price {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .pay-methods {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .pay-method {
+    flex: 1;
+    padding: 12px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: border-color 0.2s;
+    color: var(--text);
+  }
+
+  .pay-method.selected {
+    border-color: var(--accent);
+    background: rgba(124,58,237,0.1);
+    color: #a78bfa;
+  }
+
+  .pay-method .pm-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+</style>
+</head>
+<body>
+
+<div class="mesh mesh-1"></div>
+<div class="mesh mesh-2"></div>
+<div class="mesh mesh-3"></div>
+
+<!-- ─── HERO ─── -->
+<div class="container">
+  <section class="hero" style="border-top:none;">
+    <div class="badge"><span class="dot"></span>Новый набор открыт</div>
+    <span class="hero-emoji">⚡</span>
+    <h1><span>Вайбкодинг</span></h1>
+    <p class="hero-sub">без программирования · для начинающих</p>
+    <p class="hero-desc">Создавай сайты, боты и приложения с помощью ИИ — даже если ты никогда не писал код. Просто опиши идею — и получи готовый продукт.</p>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">500+</div>
+        <div class="stat-label">учеников</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat">
+        <div class="stat-num">6</div>
+        <div class="stat-label">модулей</div>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat">
+        <div class="stat-num">4.9⭐</div>
+        <div class="stat-label">рейтинг</div>
+      </div>
+    </div>
+
+    <button class="btn btn-hero" onclick="scrollToSection('pricing')">Выбрать тариф →</button>
+    <button class="btn btn-secondary-hero" onclick="scrollToSection('program')">Посмотреть программу</button>
+  </section>
+
+  <!-- ─── ПРОГРАММА ─── -->
+  <section id="program">
+    <div class="section-label">📚 Программа курса</div>
+    <h2>Что тебя ждёт внутри</h2>
+    <div class="modules">
+      <div class="module-card">
+        <div class="module-num">01</div>
+        <div>
+          <div class="module-title">Что такое Вайбкодинг</div>
+          <div class="module-desc">Как работает ИИ-кодинг, какие инструменты использовать и почему это меняет всё</div>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="module-num">02</div>
+        <div>
+          <div class="module-title">Первый проект за 1 час</div>
+          <div class="module-desc">Создаём рабочий лендинг с нуля — без единой строчки кода вручную</div>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="module-num">03</div>
+        <div>
+          <div class="module-title">Телеграм-боты на ИИ</div>
+          <div class="module-desc">Запускаем бота за 30 минут: автоответы, меню, оплата внутри Telegram</div>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="module-num">04</div>
+        <div>
+          <div class="module-title">Веб-приложения и сервисы</div>
+          <div class="module-desc">Создаём полноценные мини-сервисы с базой данных и авторизацией</div>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="module-num">05</div>
+        <div>
+          <div class="module-title">Монетизация проектов</div>
+          <div class="module-desc">Как упаковать и продать свой продукт: подписки, оплата, автоматизация</div>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="module-num">06</div>
+        <div>
+          <div class="module-title">Финальный проект</div>
+          <div class="module-desc">Создаёшь собственный продукт и получаешь обратную связь от ментора</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── АВТОР ─── -->
+  <section id="author">
+    <div class="section-label">👤 Об авторе</div>
+    <h2>Кто ведёт курс</h2>
+    <div class="author-card">
+      <div class="author-avatar"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAEsAMgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3NYcHpXi/iD4722k+KNR0c+GpJYrG5eB5vtQDPtOCQu3j869K8Y+L9N8K6JPqupyqkcYOxAfmlfsqjuTXxfqV9Pqer3up3JCzXs7zuvoWYkj9aUYocpWPuKB0u7OG6iBCTRrIueuGGR/OoJrfiuI+Bfjqz8ReGLXSbidU1ewhEUsTHBkRRhZF9eMZ9DXoUxGKVhp3MwwD0qGSH2q/3qKTFSyjJmhAfNdt4D/48J/Zx/KuSuQO1dd4E/485/8AfH8qFuKWx0SfeFUpepq8OCKoy981oyUU7sfKeaybr7uK17wDbWTdDKkVDKRL4NA/teb/AK5f1FdcwrkvB3/IYl/65H+YrrmohsKW4w0UHrRVkhQKKUewoAUdaWkApwHFO4CUtFFADH6VUnHWrb9Kqzd6aE9zkvFy/wCjn8aKk8WgfZvzoqJblx2PibXNR8V+N9cieZ3v7+cHy1JCxxKOuB0UD1pmqfDHxpa2pu4DaX7KNzwQSkyD6AgbvwrofDfh/wAcaNfW98vhLWg8JIZGspBvQj5h0r0S2vZ2+eTTdVtHAyyXFlIhH44wabk7kpXWp8/eHtbvLG/iuIJpbS+tZMo44ZGB/wA8V9UfCf4lQeMLL7FfBLfWYEzJGOFmUfxp/Udq+dPiFbz6p4zutTtNKu4YXVVLm1dBIwGC3I70nhG5v9M8U6TPZpMlyt1GFwCCcnBX6EHFVdNEq6Z9kJJnqaa7HNQQPnPNSMfcViala6PBrrvAf/Hpcf7w/lXH3JGw113gA5sJ+f4x/Khbg9jp161Rk5NXf4hVOT7xrRkopXY+U9qyrr7prXu/uZrJuvufhWbKRJ4P/wCQzJz/AMsj/MV15rj/AAh/yG3/AOuR/mK7A1UNiZbjGxmkI9Kc3WkFUIKVetApRj0oAWiiimAUUUUwGyfSqs3erT1Vm6mmhHLeLP8Aj3/OijxZ/wAe5/Gis5blx2OqAP8AeP507nH3j+dYH/CSwd7aX8xTh4mte8E35D/Gi8RcrN7GeDgj3ppggJyYYieuSgrFHiax7xTj/gI/xp6+JtOPUTD/AIBSvELM2DBCesUf/fApjWdmwIa1hOf9gVmf8JJph6vIP+AGnr4i0v8A57MP+AmndMNS1JpOmvw1jbkf7gqW2tYLVCltDHEhOcKMVQPiPSh/y8Y/4CauadqFpqCs1rKJAhw3BGKFYNS0OapyDJ4NXQBmqT9aGCKl5ylZNz9w1rXX3TWTdY2mpkUh/hAf8Ttv+uR/pXYHgVx3hL/kON/1yP8ASuxPSnDYUtxp60lKetJVEijrS02nDmqAUUUCigAooooQhr1Vm6mrL4qtN3piOW8V/wDHtRS+K/8Aj3P40VnLc0jsY3kv3Y0hhf1Naph5ximtCfSsjS5ktHID940xkk9TWs0HHSo3g56UWC5kkSdjmmt5mMVp+Tz0qOSLtiiwXuZD+Y0oBHFdx4FTbbzj3X+tcs0WJMAV13gsYiuB7r/WnFaky2OhHFUpPvH61d7/AI1Sl++a0ZCKl19w1kXZ+Wta6+4ayLs/KamRQvhE/wDE/I/6ZN/SuzNcV4S/5D5/65N/SuzJ4ohsKe4lFFFaIkKUHBpCaKYrjqM02lyaEIdmkPSkzzQTTAa1V5R1zU7VBL3oA5fxX/x7kfWik8V/6g/jRUS3NI7F3yh6UeUPSrO0U0qO9TZAVXiHpUM0YA4FXWAxiq84+XmiwFDaCTxUTqPwqyQKikHapZRSdfmrpvB/C3HH93+tc64+YZrovCRwJ/8AgP8AWiO4S2N8VTl6n61cFc5rt8yXTWsZ2gffI757VoZluRo5W2B/bIq3baPZTjEokfI5IbFYmn7nOf4QcH3ret/MAHknawwWJzgf40XQai6f4TFlqwu7e73qUK7JF+YfiKvTRvE2yQYIp9pM4mCPMctxlRjFXLgnywl2u9CcJKg6Z6Z/zii1gvczCaTNPnjaKUo3Udx3FR5GcVQhaKTNLQIOaWko3Lu27hnGce1AC0hNLSHrTAQ9OtQS96naq8p4NAmcv4rP7j86KPFf/HuaKzluax2NgikIP40+kxSAifjpVeb7pq247jrVW4xtoYIpNUEp9OasIA86x7sFjjNSzQbYCzgDYpXkdeeDUjMljlutdD4T58/nsv8AWuWaUbutdN4RORP9B/Wpi9Ry2OiXHSuJvS1xq84B5aUgE9gK7VTyK4v5o765cH5jKygfjWr0RCRr2GUi2jG1evFFzqv2eCQq6rg8u3Qf/XqG8uIrHS5Z5ZBHHEheRyegAySa8B8WfECW6vZLuDxRb2FlbMNlu1r5igHozsP4jWdSfItNzajSdR36Hs13ql3dOrJcTxqvTa5Un3OP5Vq+H/Es1jfx2WsXYms7ohFEzjcjH07kV5z4K1+bW9ImJmgkmhjLGSJfl6ZyAa5Sw1ee31yIweHrvWJbx2D3czhmjUEZOD9wc8DjODXDCpLmvc9GdGLjy2PqfUoTHGjDnBwD7dhWcx5q/p0h1DwpaTgkv5KsfUkDB/rWa5r1Iu6ueNJWdhwPSkSZHLBTnacGq88hCnmsiS9FhrNtFKcRX0ZRWJ481eQPxUn/AL5obsIn8Yay2j6Z9rjwTFIryD1TI3D8ql8JSS3GkpqFzu868JmOf4VJ+RR7BcfmaxPE9n/aum6gjHKi2kC/XacVq+BdQj1LwlpV5Fja9qgP1AwR+YNJS96wM2p51jaNP45G2qPwyT+AFRabexX8LXFtlrfcVjk7SY4LD/ZzkZ74rgfFuuvrXiiPwfpbN590jRyzRn/U2+4ec+exwpUf74r0KCKK3t47e3RY4YlCIijAVQMAD8KIT527bA9BW4qvMeDipmYetQSsBmtBHM+Kj/o5NFR+K2/cHBorKW5rHY3Q3NLVvULVIhvTp3FVAeKlMdhHOBWdeSEKQDir07AKeaypHV5Qjc5PA9TQwSCBJS8cjDDpkAeoqW9+0yWssLMEyASSM8elX7WJUjJc5JHWmpAzvI24bWGBxVJE3OGaXEmDnj1rsvBRLRyn2H9a47xJmHVXRiMhRz611vgJt0Dn1QfzrGHxWLltc6gcHNcpdRCHV7kuw2hy+Semea6vPIrzDxpqc17PeQ2LKsYfbLID2zjH6VpUmoK7HSpyqSsiXxpqEd34ZuVjb925EZB7/MM1wumeENEmgfZp9tiVg0iMg2sR0JHfFOu5VnhntrS6ecGDezfwHByCPXoRn3pujXN5DbvI/wA0KrkkdQK8zETcpqWx7OHpRhBxvc1PAS6fYeI5ra1VBGzFXwMKx6ED6V00U+jWniifSvK+zyoQ3GMOp5BFeP2HiPQotXJht9TdkYnakbgIxPUiu5tzHqmrWV+2lT2O8YErsDu9uKmKajqbTpte81oe9+EJYzpZijOUVzt+hqrqkRtrll52Nyp9qf4Qt2tdOSJgQSgfB9+af4rmtrTSXubuaOGOJhiSRgoGTjGTXs0laCPnazXO7GRO/wAhJrC8XWjahokkUGRdRFZbVgMlZVOVP58fQmo7rxDoMqeW2s2Bz0xdKD/OhXMsBNleRXikcRPIGz7Bhz+eamck00Qil4f8W6Zq1ibYMEvXieO4gbh4ZgpyjD3wcHocV534Y+IbeH9F0vSY5+I5buaYYBPkrGGQe2Xf9KxPGB0ptTl1bRb2Sx1SCf8AfrcLiW0mUnCuP4omOAT24NeQ+LNZEl1ZXltujM1vLHKh4McgOGU/Tj8MV5vt5yuluinFJpn0x+zY82txaz4uvGBleQWUXGMKvzufzYD/AIDXpWmal/bzNc2MmNLjcosqnBuWU4JU9o+2erduOvgvwb0A+J9I0uwkvbiHTJidQlsIZCixW6vsTcVxukmdGyT0VTjk5r3qHSobHU4brTI0tYTGYp7eNQsbDqrADgMDxnuD7V6OHjy00iJO7NRyMYAxiqN5MkcZZ3Cr0JJo1e4uILKWa1gE8sa7xFnBcDqAexI6e9cp431FLjwNPqlhMJISkc8bryCodTmtpSUFcQeMJlisZJGOFQEk+tFUPG0qXAtbYMNspMrD1Ref5laKxluaRvY7y4u/NTYpz61B2q1fxb7pniG4EdqhaKUjhDUoooXb9hWUJQl5GzHA3Vr3FpcsxxExzWVcadqW8Olk77TnBxg0pMehtpl4gP4c4J9KlbMKbRz6VR0o6iFKz2MiEnuQRVm+iu/IYw25dtvCgjrVpkNHnfiq483XJiD0AFdl8PmzAf8AcH865C58M+I5pnmOnOSzEn51/wAa7PwRY31jbst5AYmxgcg9/asYX5rmsrcpp+LNT/srRZblQTK5EUQ/2m4B/Dr+FeF+PbfVZvDUsWi3bwOjbnWQbfNQH5iG6+tU/wBuDWPGOjWXh6fRLqa00qVpI55rckP5/BVSewK5xjrg1B+z9r0/ir4fWMk0/wBp1PSGaCdJPmeVPQ56kqRj1IrLFQfxPY68DUjH3epF4O1i1Lx6e00Ud7AF/cscnY/QH8QcV0F3Be6cJJYbeSSzcc7Rkp7H296reI/B1vf3Qu9Otfs90yH7JOvBkHURN64OMZ5H510HgPVTeWqw30bR3kP7uZGyrow4Pv8AhUxjGtBJ7o0qVJ0ZuS2Zh6RaaFfTie4WPf8AxZwD9K9d8I6RZ6lFbuq4sbfGCejEdFHtUWl6Zp9yx8xEkyM8oufzxXRJOsEUdtCqoijhVGABWtLC8r1d0Y1sa5xsjoomVb3GRhkGAPbioPFOiQ6/o9xpctxc26yAFZLeUxupByMMP1rD0vUGa8VZDyrFc+orori58t43zxXeldHnN2Z81eMrefTopbfVbC+08RuY0e619A7nthQjlu3GDXi+pX97DrkkNvFNLsIMoeVN0eehMuxCvfqK+rP2g/hnH41s7bWdMaO31CHCSzBASYs53euV5/P8a840/wCC/gqOx23Vldand/eeaa7eMyH/AICcCuWVGL3Q7s+ePEviS+g1v7QZbqe4ZAju96l0CvTbuXqMdjXPalcfbNTge1z5V2+3aOdrng/0r6g/4VF8PNTzb2A1LSdRjz+7F0xljI77XyGHuOD61w3jv4OeLNOtpdQ02/g1dbZg6SQW6xXSkY+8B97HXgk1KoRi+axOrNb4L+O9F8J+GF04z39lqFxIJZbtEW5iKAkRq0RwwXb/AHTnkmvafDfxQ8P6gVgv9S06GRmCJcw3G63kb+6S2Gib/YcA+hNZ3h/wf4X8R/DvQ7fWdEtJsafFGJFG2VCECnEi4YHj1ryb4jfs4Xds0mo+BtRa4I+b7HdSbZB7K/Rv+BY/Guhc0VdDsfTF9JMY/wDRWjLkZG/O0/iOn1ryDUdUGl3niDwnNC9tZ3ttJd2cEn/LvMMNLCCOCrD51x/tD2ryDwn8WPGPw6v49I8R6fcW8cfyta3asI2x1K8ZjPuuVP8Ad712/wATPH3hnxT4UM+lW0trqkGL23kZcNvH34mP+0mSCCQcVlWTnF2YLRnUJqsepazeXJkxFZ6bbQDJ4DMjSOfyC/lRXlnhfWhe6bc2zXKxQ3tyJ55SekKxLkZ9sY/GivO+tVX8KRvFK2p9fDrTlrkW8WXHX7An/ff/ANamnxdd9BYx/wDfZr0uZE8rOzGKXtXDnxffjpZQcerGmnxlqIHFnb/iTRzoXIzuqK4I+M9S/wCfS2/8e/xph8Z6r0Ftaj/gJ/xo9oh8jPQO1MT71eft401gn/UWg/4A3+Nb/hDWL3VJZ1uliGxQV2KRQppsTi0iP4rWkl14D1GaCzW8urALf28JGS8kJDgD3IBA+tfOkDro/iNPit4Xbz/C2swqdZggAEls4OPO2DtnlsdPmr2X9pvxtqfgP4VXOq6OIxf3NwllDI67hFvDZfHcgKce5r5I+AfxMHg3Vm0/WpDJo1zuLbhuETHr8vdW6EVNaDaujahUUXZn2NDFbX+mxtASbebbLFIOiP1BHsev4muW8aafHod5F4iRhE0jiK7jXOGzwsn17H8PSvMr/wDaL8MaFA2n+F9EvdRtgCsfnuIEiHYL1JA7cDivLtf+MvjDxFqludQuo4NOSZWa0gXajDP8RPLfn+Fc9KjPmvsdNSvCzV7n2Z4BuHv7Y6gCRGcohP8AF6mt64uCpeRSc9voK5z4c3lpd+E7F7SVDGtqHDr0+f8A+sKt+JdVttJ8PahrN2wS1sbV7iQk/wAKjIH1PSu9HnN3Z4949+LkWn/tC+FNCtrnbp9ld7NTYE7S867AD67AwP1PtX0RDqTebc2l0CUeQsjf3SOK/MPWtUuNV12+1mZmWe7uHnJ3cqWbI59q+1P2b/iUvxC8Li1v5APEmkqiXYJ5uo+izj37N78960iyZH0Zo0yvaheo6YrjvF2nDSLh7iNMW0gLJ6KepFbej3fkuEMZwTyM1q69ZxappktnIRtnjKhv7pI4NEl1JTPLtW0uy1iCJbhGEifPBPGdskLf3lbqP6965fX9e1HwjfWV1rT+ZBNKIJrmFflmiHPmMmco6dyMqQexwK6Xw5OzabZxT8Txk20g/wCmkZKsPzU1j6bdW3iX4jTRvCstnYaN8gkGVk+0SsCSD22wj86xlrtuVY6jw7LCslxZwsjQcXNqyHKtFJzx7bs/pWweeK4C2hn8I+L9P0+Ny+g3atDZqy5NsxOTHuzkrnBAI4yR2r0OJMkFqIS0t2KaejZieMPCfh7xdpDad4i0yC9gwdhcYeM+qN1U/Svl34g/CrX/AIcfaL6zuptV8Ik/vWUZmtATwXQdVBxkjjvgGvr6T5j6AVUvYIp4JIZ40likUq6OoKsp4IIPUVbimQfnl9ole/OmrNstxJkHPAQnNFe36H8OdH0/4r+IJSVNvYMH0+0bnAPRj6hTwB9KK5uSK2RootnvJtfQUhtPatjyPak8j2osacximzGOlRvZj0rcaD2qN4OOlPlFzGCbQZqN7ULxitloxmoJU5NJopMx/IAbpXWeA12zz/7n9aw2TnpXQeCxi4m4/gH86IrUUnoeVft1XHl/CKxgwCZdXi/SOQ18RkZGa+xP29Z2Xwj4ftwfllvmP/fKH/Gvj1vbpXQjIfEw28ilLN1wfao4yMc9qUsT06npTEz7Y/Zg1GO4+CtgVnWaaKaSCbHVNp+VT/wEqfxrM/a58T/2R8J00eGTbca3dCIgf88YwGf8M7R+NebfspeLbbS7XWvDt1LsNw6XUI9cAq/4/crG/a/1z+0ficmlQSlrTSbKKKNc8b3G9z9TuX8qAPG+wH413PwM8WN4L+KGi6yz7bXzvs95nOPJk+Vyfpnd9VrhlwOe9SoDjPc9KYdD9TSwjvLUgjDjqO9b8riJFzwucH6V478DvFB8WfB7wxrEkrSXcEP2O6ZjkmWI7ST9QAfxr1+9/eaaGHdQa2uZtHmHxHth4eu7u/hGIbmRb1Bn7smQkuB6YZW+pNeW/BO/Nx8VtSi3kpH4dsVxnqQiHP5ua9l+L1jca18KtXNkgfULCBp4l/vBVO8fim78QK+ZP2a9Xa7+LEzZPz6J5TDPXy9gH8q4JpxreRad0esaxqr3/jHW/BlwGiuWhGo6WX7yKMkIf7rAdOxD16B4L1yDxD4ft7+FwZAPLuE7xyrjcCP1+hFeffFi1+1WUPizQXV9a8OyedsX78kQ5kiYdenIH19ayPhP4y0tfFN5PYyAaVq10uecLFJIoMeR2O4NGT/u0lK079GXvGx7g7orKhIBc4XPfjNZOk6pDqmkRajHgRzFwnuA7KPzxWH4j8U21j4he1kGGsrVrgsenzkKD+A3/lXmPh7xNeyeGNH0uyeSNhBDaRNn/WTzPl2HptTzOfXNaqtHm5TMtfEezOk65P4uslbKXpivVByHiZEBP4f4UUzXGuvEGp3Nvpt0x0ZS5kl8v5HYHacH+I/LwPxorG99jXXoe2YFIRQzYNRswz1rYAaopPu09mGOtRyEbTRYEU2HzZqvMOeKssQWqtORk1mykQMOa2/CR23Unun9aw2YZrX8MsBcuTwNlEdxy2PA/wBvXUo5LPw3piuC0c80rDHPKqP618p19J/tk3mm3EdiZQ7X8lw7WxXosYADZ9vu4+lfNZroRkNI+bFO7de1Rv8AeBpzHigC1pd9Ppt9b31s2JYW3Lz19qveOtb/AOEj8V6hrWGX7U6thuowijH6VknoBUTcHApMQ9Dn6Cp4s7s1CPSp4l6CmB9QfsQ+IMLr/hOaUYcJqFuhPcfJJj80/KvsJW3aLG3oMV+bHwY8Snwj8T9C1gti3E/kXPOAYpPkb8gc/hX6Q6eSdMlgPJQZznOa1iyGUrCSE3BikAaOXKOp6EHgj8q+F4v7S+Enx11fTraw+2y2Ms0McO4r5sDgMjA+uzB+or7OlmaPUBt4CvmvFv2u/Cz2Hj7wx8Sraynltiq2uovBxs2n5GJHQlXIB/2eazxCuroEczqHxL8P6hfWWs2f2zTNTUCO6tZk2yywn+KM/dk2nnafvDI9K5jw1pljY+Or+xivIZdN12zdrWWIkIjnlWC9RhgPpj6Uus6bp2rTtp63FvHcOd6JdgIsrZOCmcGOTp6Bs8GskR3ERi0/zVt9YsbgXECTKUYsrfMvsxHXqD165ry69TlaZonZnR+OPFF3qsNvNJPFHK+jyQXJDdZ49wK+5JOR67hVO7g1J/Gul+CtMnUT2aR2u6M4HmyRgNn3XfJk/Wueuste60DbPCv26O8tVbB2q4YY+gIx+FaPw2sZ9Xur/UdSuJpNRvJvKguULebDMfnkucLyRGisfqwqaSvKXdkWsz2+5ih0bQbuPTo420nTmkWMRNkyMpw/5YP1JNFYuj6xZRade+C7hYo7qz3pvh4huEP8cZ6nI5PvmitnJ7I316HrcE4n5kkZf93irsdvZNjdM/51Uh0LSoWLRJdLnt9pfH5ZqVtMsGXayTkf9fD/AONdSi+orofd/Y4UIjkO7tz1qo0ilev5CrNtpmm2zFo7Ndx6szs5/UmrQS3/AOfdKpRYroxGkAP3T+VVbiXrhD+VdL5duf8Algn5Uhhtf+feP8qlwGpJHHSzODxGfzrB+KHjp/h/4CudfhslvLhpI7aKJn2rlzySfYA/jivTjb2h/wCXWI/8BFePftgWUL/BK8lhiSMwX1tIdo/2tv8A7NSjBp3ByTVj5V+KPje58caxDey25t4oY9qRl9xBPJ5wO9ciDxzSdaOla3IGyc04BgikggEce9NOCetbniCy+x6NpbYGW8xXPqQRQK5i7jjihhx06Ui8DNOJ4oGKg5BFW7dcnNVEJRsfw/yrSVNgA74qkISUgb26YBr9Fv2afFZ8a/CDSNWmbfeR2v2K7OOssXyk/iAp/GvzkumIhI7sa+sf+CfHjEFtb8B3Mg4/4mNmD+CTAf8Ajhx9apMmR7zMD9qc+jGtvxfYxaz4FuLWWITYiEgUjOcdR+RNZdzGVv7hD/C5Fb+gSB7aNH+ZQxjYf7LD/wCtVyXMib2Pnm58IaLqaz6Xf2aebEoEM6cP5R+7+R459K8y+K3hbXNBjtp7tjqOkxbVi1FI8TWmOiuByV9+fwr33xfYz6ZqMs8SFnsJWDp3khzyPrjDD6VejS2vbTayxz208fIIyrqR3HcYrg9jCV0zeWup8kalrNxBAlrdCNpA6/vV53LkN8pHBU5DV69+ytpkj3Wo61MpVLaEWtvnozO2+Rx/3yo+grmvjL8Ijotnd+IPDZdtMUeZNZEkm2IP3kPdPbtXrXwgeysfhvb3luDHEyNM6kcqAMKP++QPzNZUKCpTsZJNs86+I1ibSK6vbO4SG3j1ec2s0YGLSUsBsYj/AJZORg/3WwenQrfs4Le58HTI9uhiu3kaVCvDbuuRRUypwnq0dHLbQ9tL+9NaVR1YD8a8XaS+breXB+srVGyXDfemlP1c11+18ieQ9pM8I6yoPxFMN7bL1uYR9XFeKmGQ9WY/jSfZjmk6vkHIe0/2jYjre24+sg/xpjaxpi/e1G1H/bUV42LY56VIttjsMUva+Q/Znrja7pI/5iVp/wB/RWD49g8M+L/BmqaDqusW8FjcxASziZV8rDBlbLccEDrXmXijULLw9oVzq9+cQwLkKOrseij3Jr5l8X+K9W8TXzT307LCD+6tlY+XGOwA7n3NXGTkJpIX4geEk8L6q9vaeINI1y0JPlXFhcq+R/tKDlT+Y965gHBwas59qCqN1AqyCvGpklSMcFmArrvFLLceGtqkFra6z+DDB/XFc5AixPvRRuHc9qtNdzGGaJgrJKuCPf1qkLqZCHsaeOVpHideoz9KRT2NSMlxkA1oNJuwfYCs+PJU+3NWlYYyfqapMTGXjcqO4FdL8GfF0/gb4naD4lilKR2t2guRnhoWO2QH/gJP5CuTlfzH3ZppGRii4H6laiIpNVlkgkWSK4RZoXU5DqwyCKn0aQxw3GM5UBvyOa8z+AviuHxX8FfDWrRPuutKjXTL1T1DxAAfgV2n8a9R05VXUtn8EykD8RW0djOxkfEG0X7Vb6jGAUnj2t7sP/rY/KvOtJu30jXZtHunVbOX97ZEjG0Hqn0BzgfSvXL61Oo+GZ7bGZ7RiV9yvb/vmvLfFGjHWdM8uOUwXUTeZby4+6w7H2PQ1zVYtaxNqbT0Zr3sEV9YT2c6b4po2jdfUEYryzwzrcdnofiXRmba8UTiBe5DZAwPbNdx4K1pr62azu18q/tCY5oyecjiuAuLBI/iSlqsSbRduXyOqnBA/SuarL4ZI2px3izfuLZ7bw9bwSABhEMgeporW8SJujf0xRVNWdhJ31Mk2wzgCk8jnpWtJCKiaIZosFzM8jml8gelXzHzimlB0pNAUxAPpT1gHerKp7UTvHBbyTyEBI1LsfQAZNID5s/aO8Tvf+JV8O2zkWmm4MuDw8xGTn/dBx+JryjJ9atazevqOr3moSMWe5uHlJPfcxP9aqiulKyMXqOBpVPPNMzmlBOKaAn6Ee/NPU9RjoKg3nCt/d4NSM2yXPUf0qkIlKBveontgwyKkjcJIY2Pyt90+lOLMpJA+YcEetMCsIHXJXn1pJI5Gjxnirw2sA69D+lIyDqvX0osgMza6dsilHIyKvNEGGQMHuKqSxlWyODSaEey/sn/ABGh8G+M5tB1eYpoXiDZbzMT8tvODiKX6ZO0+xz2r7l00yKtv5n+uhfy5BnoRX5Zhhn5hg19f/sxfGu48QXFp4T8SSGTWEQR2tyBzeRovCt/01UDIP8AEAR1AzcH0Ymj6ntx9m1uU/8ALK5UOB2yOGFcL4gsjp+qz2+MKG3J/unkV6BZ7b+yV8jzYjuVh0P/ANY1iePLBp9Pj1KNctB+7l/3ex/A/wA6Jig9TxXx7aXGm3C+KdN3B7cg3saf8tEH8f4d/UfSsF7yHWvH1hf6ZOjxT2yysUIJQ/dIPvxXpUncEAg8EeteTJbWvhP4pw2NkpS3v0DQIRnYGJ3gE9gRwPeuKrC23c66crne6/gxP9KKj1lsxP8ATmiqe5Mdiywz2pjKKsMPSoW9KLCK7Lz0qPHOamfrUZxjikxobXKfGDU20j4a63do4SRrcwRnP8UhC8e+Ca63j1rxr9qvUxB4V0zSFOHu7oyt/uxr/iw/KlFXYN2R85dKOtGcUdBXQZAOvNGSBxSDrS0APU9D+nrUki/uwQSR0/8ArVEh5qU/I3Odp6imAzO6Ieq8VMjGWLr+8Tr7ioGTy365R/ummqxRgynkUCLMcmx8joeoq0CpG5TmqLEONy96dDIUIP507gWic8jrTZVWRcd6RyCA6Hg9qFYH2amIq7AxKEfMOh9afp93eaZqEF9YXMttdW0iywzRsQyMDkMD2INEoxKpp8iAsScAj9RSsB+lnwN8ew+N/hxofid2jW7uIfJv0QjAnQ7XyOxJw30YV6CQhnaCVFeCdCMEZB9RXwD+yF8QF8OeKbjwfqVwY9P1t1+ysx+SK7HC59A4wufULX3roNx9u0iNm/10fBHfIq9LENanD+IPCV3bXciwSIYWJMZYnp6fWvL/AIi+DfEMuvaHrGn6VJeNZuwk8llLBTjsTk96+m3jjurbbIoYN1BrButLljYmBlceh4P/ANesnBTVmXGpyu58/wDjn+07HRZHj0+88+YeXEBAxwxHU4HAFFe8tYXax7vJz67WBNFRKhd7msaqS2PJGqu3BxmpnOfaq7nnJNQwGNnOM00j8qGIpmaRSFPHSvmT9p/VPtnj+HTlfKWFoqkdg7ksf0219M5Bx618a/FTUk1f4ia5fRnMbXTIh9QnyD/0GnT3FPY5rvQelJ3pT0rYzG55FOph608GgBQcHNWbhQ1ur1VPtVnOdP8A916aEyOJlI2SD5T+YPrTZkKNjOQeQR3oFE7FUTPNHQBsbbTUhxnKmoAQelOQkGkhk6PtBGcg+1ODdcelQ59KVWyOtUIlYkkZ4IqR23R9MmoM8daeDx1piHKXR0ljYo6kMrKcFSOh+tfeX7KnxlbxzpM2m6pZSQ6vp0aG6uAR5V1n5dwHUOcZI6dx6V8IRDewjXc7E8KoyTX0n+z58P8AxJZ6cLw2Vxbee4csfkI4x9elNA1c+zrbWLVb+a1My5BB4OcZGau3DLKm6PBPsa8q0Xw7fQrulumifgnac109nDPBt33ly+OxYfnR1uLlOjE5ikAk2qeuC3P5UVjFyxbOW55NFNyuHKeQSygDrVSS4QMcmvBrnXPFdyPnl1R/TEZFZ143iaXnydVlz1+bH8zXC5HQon0FJewKfmkQH3YVVl1awiOJLuBfrIBXzw+n+IJDl7C8B7b5R/jTodB1yU73hReMfNL/APWqHMpRPbPEnjDSdN0a9ul1K2MsVu7xqJASWCnA498V8eu7SOzyEs7ksx9SeTXf+OtOu9L8PmS4dMTSCMKM/U/yrz7Nb0ndXM572DvS9RzRRWpBEcVKvSo24pydKAHGp7cGSCWMHnG4fhUB6VNYvsuB7jFAEUbZbFXbOyOoX8VkjBSwzkmqKYEp9q6n4dWRutfW5kA8uBc8nqTxj9aG9AOhsPh7a3UK43hj1x3+n6/lWxbfBdLoLi/nhY5B+XdhsdP8+lej6BYqUUgBQmMqD1OOg/Gu40222OEHzR7cfMO9ZKdty+U8j0j9nGG5aT7R4ilVUODsjXP6/jXZaP8AsweEWSOS81nVZA3J2yIuR/3zxXqVhjYFKABjk55rVidQpAixuJ6GqVVdhcrOF0r9nL4VxNvl0y+ueBgS3r4GOp4I6+ldVa/Bj4WW2DF4L0pwpH+sRnP45NbcMoSHbmReOcMfzq8s21QA0hOTxuPWqVVC5CHQPBvhLRyX0nw1o9jJnAaG0RT9MgZro4fLj/hUDoSB/WscTjyzhjgjByxxj+lWUuB5hbaoVk5Unr9KftA5TVQIxzhUIbpnA/z0pWXD4HHUEiqVtcbvLCsMHhgMdgfzqVbl9mVBw2DgDBzT5risSMqooZgevO0/pz/Siq8kjshIKB9hIwPvDn8KKBnz0bALgPAxB7qM4pFtbNm2hlVvRuP51plsD5SaZId67ZFVx7iuWxrcqf2VC3UJSNoNo/WMD3HFTGKINlQ8Z/2GOPy6U9PPUjZcbvZ1/wAMUWQXPB/2lRFZ3+j6ZDKxURSTupPQkhR/I15BXafGzWjrfxEv5Bjy7XFomDwdnBP4kmuMFbRVkZN3YAUq9KSlWrERv1pUokHzUid+KAH44oRirgjtS4ppoAsRW0txcMkK53fNnsB716j4H0sWVvDGAXZl81z6cjr/AJ7VxXhBhIssRA4ZSe3Ga9M8PxAtwpwDh26jv379zWU2NI9M8PkGNBtyN2VOc5OcV2OlDoAwPANcl4dhIIJBbkLz/QeldjYx5jUt6AHPXrWLNUbNtnywOWP5VoRN9zJyR0qjb5K9ckjIzVqEdOTwOppAXI5AeT/Ccfzq1G4Kc56kZ/CqUB4UE45PJFTo428fLk49jxVJgXUYDOB14qWJ9yEgYGOcVTjkb+Fuf4vWpAC2PlOT0x7VYmjQgJCZCBvm5IPUHg1KGLYDOOABknnJNU4C4dGPOSAc9RzVpE+X5xnsQ314/wA+1axIZMdrRcqoGP4Oo/8A1daKI/lJUkkj7uThsdx/n0oqwPC/IhVtylkPoCQPyphS4QHZMr+m9f8ADFAkY9Tmhj6VxuRpYj8+VCfMtyfdGz+hxTlvbdiFMmxj2cbT+tMeRgCQe9RkCVfnAI9KhzYz5j+K/hqbw34uuYiXktbpjcW8rc7lY5IJ9QciuSHWvqnxh4e0nW9FntL+1RlRGeNlGGjYDOVPavliQYZh6EiumnPmRlKNhKVabTl6itCRso71Gp5qabpUP8R9qYEwGcU09TSxH+VNk60AbXhCcxauq8EOMDPqDkfyr1vw8gMWMr878LnH1J/lXiuiMU1W1YdRIv8AOvbvCwL3SxMTt4H/AI9WU9yonp+jBSFKKQi4Y5711toSFGF+8RjjOea5fQlGx1xwshQfQLxXUwYCIQMfOy/rWTNEa8PTAxnkVZhPXjn17dKrRcNkVbsyW688ikBYjxnk1InTt9MdKb0yBxhutPByozTAlXG0DnH169qmi29mKnr6ZqrbEn5SeAc1biGQDk8jp25qkwZZiwRuyw79eegP9Kshg6od2dxxyc4OcfnVSEcAZILKCSD6kCp4zlQwAXcdpAHB5P8AhWsSGWFO5AARu77u49ie9FR8iFDknBIx2IwOv50VbEf/2Q==" alt="Сауле Абишева"></div>
+      <div>
+        <div class="author-name">Сауле Абишева</div>
+        <div class="author-role" style="margin-bottom:12px">ИИ эксперт · Вайбкодер</div>
+        <p class="author-bio">Помогает людям без технического образования создавать продукты с помощью ИИ. Эксперт по Вайбкодингу, обучила более 500 человек.</p>
+      </div>
+      <div class="author-tags">
+        <span class="tag">12 запущенных продуктов</span>
+        <span class="tag">500+ учеников</span>
+        <span class="tag">Без найма разработчиков</span>
+        <span class="tag">5 лет в ИТ</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── БОНУСЫ ─── -->
+  <section id="bonuses">
+    <div class="section-label">🎁 Бонусы</div>
+    <h2>Что получишь сверху</h2>
+    <div class="bonuses">
+      <div class="bonus-item">
+        <div class="bonus-icon">🤖</div>
+        <div>
+          <div class="bonus-title">Чат-бот с промптами</div>
+          <div class="bonus-desc">Готовые промпты для 30+ задач разработки</div>
+        </div>
+        <div class="bonus-val">3 000 ₸</div>
+      </div>
+      <div class="bonus-item">
+        <div class="bonus-icon">📋</div>
+        <div>
+          <div class="bonus-title">База шаблонов</div>
+          <div class="bonus-desc">50+ шаблонов проектов под ключ</div>
+        </div>
+        <div class="bonus-val">5 000 ₸</div>
+      </div>
+      <div class="bonus-item">
+        <div class="bonus-icon">💬</div>
+        <div>
+          <div class="bonus-title">Закрытый чат выпускников</div>
+          <div class="bonus-desc">Общение, нетворкинг и помощь 24/7</div>
+        </div>
+        <div class="bonus-val">бесплатно</div>
+      </div>
+      <div class="bonus-item">
+        <div class="bonus-icon">🎯</div>
+        <div>
+          <div class="bonus-title">Разбор твоей идеи</div>
+          <div class="bonus-desc">Живой разбор проекта с автором (VIP)</div>
+        </div>
+        <div class="bonus-val">10 000 ₸</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ДЕДЛАЙН ─── -->
+  <section id="deadline">
+    <div class="deadline-block">
+      <div class="section-label" style="margin-bottom:12px">⏰ Ограниченное предложение</div>
+      <p class="deadline-text">Цена повысится через:</p>
+      <div class="timer">
+        <div class="timer-unit">
+          <div class="timer-num" id="timer-h">23</div>
+          <div class="timer-label">часов</div>
+        </div>
+        <div class="timer-unit">
+          <div class="timer-num" id="timer-m">47</div>
+          <div class="timer-label">минут</div>
+        </div>
+        <div class="timer-unit">
+          <div class="timer-num" id="timer-s">12</div>
+          <div class="timer-label">секунд</div>
+        </div>
+      </div>
+      <div class="spots-left">
+        <span class="fire">🔥</span>
+        Осталось только <strong style="color:#fff;margin:0 4px">7 мест</strong> по этой цене
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ТАРИФЫ ─── -->
+  <section id="pricing">
+    <div class="section-label">💳 Тарифы</div>
+    <h2>Выбери свой формат</h2>
+    <div class="pricing">
+
+      <!-- СТАРТ -->
+      <div class="plan-card">
+        <div class="plan-name">СТАРТ</div>
+        <div class="plan-price">50 000 ₸</div>
+        <div class="plan-period">разовый платёж · доступ навсегда</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span>6 модулей курса</li>
+          <li><span class="check">✓</span>Чат-бот с промптами</li>
+          <li><span class="check">✓</span>База шаблонов (50+)</li>
+          <li><span class="check">✓</span>Доступ к закрытому чату</li>
+          <li class="disabled"><span class="check">—</span>Живой разбор проекта</li>
+          <li class="disabled"><span class="check">—</span>Персональная обратная связь</li>
+        </ul>
+        <button class="btn btn-outline" onclick="openModal('Старт', '50 000 ₸')">Купить Старт</button>
+      </div>
+
+      <!-- VIP -->
+      <div class="plan-card popular">
+        <div class="plan-badge">🔥 Популярный</div>
+        <div class="plan-name">VIP</div>
+        <div class="plan-price">100 000 ₸</div>
+        <div class="plan-period">разовый платёж · всё включено</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span>6 модулей курса</li>
+          <li><span class="check">✓</span>Чат-бот с промптами</li>
+          <li><span class="check">✓</span>База шаблонов (50+)</li>
+          <li><span class="check">✓</span>Доступ к закрытому чату</li>
+          <li><span class="check">✓</span>Живой разбор твоего проекта</li>
+          <li><span class="check">✓</span>Персональная обратная связь</li>
+        </ul>
+        <button class="btn btn-primary" onclick="openModal('VIP', '100 000 ₸')">Купить VIP →</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <div class="footer">
+    <p>© 2025 Вайбкодинг · Все права защищены</p>
+    <p style="margin-top:4px">При оплате вы принимаете <span style="color:#a78bfa;cursor:pointer">оферту</span></p>
+    <p style="margin-top:4px">Поддержка: <span style="color:#a78bfa">@vibe_support</span></p>
+  </div>
+</div>
+
+<!-- ─── PAYMENT MODAL ─── -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="modal-title">Тариф VIP</h3>
+    <div class="modal-price" id="modal-price">100 000 ₸</div>
+
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Способ оплаты:</p>
+    <div class="pay-methods">
+      <div class="pay-method selected" onclick="selectPay(this)">
+        <span class="pm-icon">💳</span>Карта
+      </div>
+      <div class="pay-method" onclick="selectPay(this)">
+        <span class="pm-icon">⭐</span>Stars
+      </div>
+      <div class="pay-method" onclick="selectPay(this)">
+        <span class="pm-icon">🟡</span>Kaspi
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="margin-bottom:10px" onclick="pay()">Оплатить сейчас →</button>
+    <button class="btn btn-outline" onclick="closeModal()">Отмена</button>
+  </div>
+</div>
+
+<script>
+// Telegram WebApp init
+if (window.Telegram?.WebApp) {
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+  tg.setHeaderColor('#0a0a0f');
+  tg.setBackgroundColor('#0a0a0f');
+}
+
+// Smooth scroll
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Timer
+(function() {
+  let deadline = Date.now() + (23*3600 + 47*60 + 12) * 1000;
+  function update() {
+    let diff = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
+    let h = Math.floor(diff / 3600);
+    let m = Math.floor((diff % 3600) / 60);
+    let s = diff % 60;
+    document.getElementById('timer-h').textContent = String(h).padStart(2,'0');
+    document.getElementById('timer-m').textContent = String(m).padStart(2,'0');
+    document.getElementById('timer-s').textContent = String(s).padStart(2,'0');
+  }
+  update();
+  setInterval(update, 1000);
+})();
+
+// Modal
+let currentPlan = {};
+
+function openModal(name, price) {
+  currentPlan = { name, price };
+  document.getElementById('modal-title').textContent = 'Тариф ' + name;
+  document.getElementById('modal-price').textContent = price;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+function selectPay(el) {
+  document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function pay() {
+  closeModal();
+  window.open('https://pay.kaspi.kz/pay/6rsvqcfl', '_blank');
+}
+
+// Intersection Observer for animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(el => {
+    if (el.isIntersecting) {
+      el.target.style.opacity = '1';
+      el.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('section').forEach(s => {
+  s.style.opacity = '0';
+  s.style.transform = 'translateY(24px)';
+  s.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(s);
+});
+</script>
+</body>
+</html>
